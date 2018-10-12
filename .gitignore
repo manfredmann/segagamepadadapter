@@ -1,0 +1,6 @@
+segagamepadadapter.qbs
+*.txt
+*.mk
+*.o
+*.d
+*.map

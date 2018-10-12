@@ -3,7 +3,6 @@
 volatile uint32_t system_millis = 0;
 
 void clock_init(void) {
-  //rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
 }
 

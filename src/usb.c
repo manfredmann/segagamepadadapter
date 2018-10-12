@@ -228,8 +228,12 @@ static void hid_set_config(usbd_device *usbd_dev, uint16_t wValue) {
 }
 
 static usbd_device *usbd_dev;
+static uint8_t      cycle       = 0;
+static uint8_t      cycle_count = 0;
 
-void usb_init(void) {
+void usb_init(uint8_t gamepads_count) {
+  cycle_count = gamepads_count;
+
   nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
   nvic_enable_irq(NVIC_USB_WAKEUP_IRQ);
 
@@ -249,10 +253,9 @@ void usb_init(void) {
   usbd_register_set_config_callback(usbd_dev, hid_set_config);
 }
 
-static uint8_t cycle = 0;
-
 void usb_send(void) {
-  usbd_ep_write_packet(usbd_dev, 0x01, NULL, 0);
+  if (cycle_count != 0)
+    usbd_ep_write_packet(usbd_dev, 0x01, NULL, 0);
 }
 
 void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
@@ -276,7 +279,7 @@ void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 
   usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
 
-  if ((cycle + 1) == GAMEPADS_COUNT) {
+  if ((cycle + 1) == cycle_count) {
     cycle = 0;
   } else {
     ++cycle;

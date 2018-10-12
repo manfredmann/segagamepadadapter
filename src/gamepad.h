@@ -17,8 +17,6 @@
 #define BTN_START 10
 #define BTN_MODE  11
 
-#define GAMEPADS_COUNT  4
-
 #define gamepads_en()   gpio_clear(GPIOB, GPIO8)
 #define gamepads_den()  gpio_set(GPIOB, GPIO8)
 

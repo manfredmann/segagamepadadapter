@@ -72,7 +72,7 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   gamepad_buttons[BTN_A]      = !gpio_get(gp->data4.port, gp->data4.pin);
   gamepad_buttons[BTN_START]  = !gpio_get(gp->data5.port, gp->data5.pin);
 
-  gpio_set(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_set(gp->select.port, gp->select.pin);
   DELAY();
 
   gamepad_buttons[BTN_UP]     = !gpio_get(gp->data0.port, gp->data0.pin);
@@ -82,16 +82,16 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   gamepad_buttons[BTN_B]      = !gpio_get(gp->data4.port, gp->data4.pin);
   gamepad_buttons[BTN_C]      = !gpio_get(gp->data5.port, gp->data5.pin);
 
-  gpio_clear(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_clear(gp->select.port, gp->select.pin);
   DELAY();
 
-  gpio_set(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_set(gp->select.port, gp->select.pin);
   DELAY();
 
-  gpio_clear(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_clear(gp->select.port, gp->select.pin);
   DELAY();
 
-  gpio_set(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_set(gp->select.port, gp->select.pin);
   DELAY();
 
   gamepad_buttons[BTN_MODE]   = !gpio_get(gp->data3.port, gp->data3.pin);
@@ -99,12 +99,11 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   gamepad_buttons[BTN_Y]      = !gpio_get(gp->data1.port, gp->data1.pin);
   gamepad_buttons[BTN_Z]      = !gpio_get(gp->data0.port, gp->data0.pin);
 
-  gpio_clear(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_clear(gp->select.port, gp->select.pin);
   DELAY();
 
-  gpio_set(gamepad_gpio[gamepad].select.port, gamepad_gpio[gamepad].select.pin);
+  gpio_set(gp->select.port, gp->select.pin);
   DELAY();
-
 
   //Временная затычка. На макете только один геймпад
   if (gamepad > 0) {
@@ -115,14 +114,14 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   }
 
   gamepad_data.buttons  = 0x00;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_A] & 0x1) << 0;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_B] & 0x1) << 1;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_C] & 0x1) << 2;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_X] & 0x1) << 3;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_Y] & 0x1) << 4;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_Z] & 0x1) << 5;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_A]     & 0x1) << 0;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_B]     & 0x1) << 1;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_C]     & 0x1) << 2;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_X]     & 0x1) << 3;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_Y]     & 0x1) << 4;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_Z]     & 0x1) << 5;
   gamepad_data.buttons |= (gamepad_buttons[BTN_START] & 0x1) << 6;
-  gamepad_data.buttons |= (gamepad_buttons[BTN_MODE] & 0x1) << 7;
+  gamepad_data.buttons |= (gamepad_buttons[BTN_MODE]  & 0x1) << 7;
 
   if (gamepad_buttons[BTN_UP]) {
     gamepad_data.y = -127;

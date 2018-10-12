@@ -1,4 +1,4 @@
-segagamepadadapter.qbs
+segagamepadadapter.qbs.user
 *.txt
 *.mk
 *.o

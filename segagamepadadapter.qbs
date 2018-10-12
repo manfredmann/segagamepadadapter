@@ -6,6 +6,7 @@ Project {
 
     property string     device:     "STM32F103RBT6"
     property string     libopencm:  sourceDirectory + '/lib/libopencm3'
+    property string     hid_def:    sourceDirectory + '/lib/hid_def/include/'
     property string     cpu:        cpuValidator.cpu
     property string     family:     familyValidator.family
     property string     subFamily:  subFamilyValidator.subFamily
@@ -92,6 +93,7 @@ Project {
 
         cpp.includePaths: [
             project.libopencm + '/include/',
+            project.hid_def,
         ]
 
         cpp.libraryPaths: [

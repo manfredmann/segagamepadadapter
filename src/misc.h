@@ -13,6 +13,7 @@
 #include <libopencm3/cm3/systick.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/hid.h>
+#include <libopencm3/usb/cdc.h>
 
 #include <string.h>
 #include <unistd.h>

@@ -89,15 +89,6 @@ int main(void) {
 
   gamepads_init(gamepads, 4);
 
-/*  gamepad_simple_cheat_t cheat;
-  gamepads_cheat_init(&cheat);
-
-  cheat.button = BTN_C;
-  cheat.pressed[0] = BTN_DOWN;
-  cheat.pressed[1] = BTN_A;
-  cheat.pressed[2] = BTN_B;
-  gamepads_cheat_set(cheat, 0);*/
-
   gamepads_en();
   while(1) {
     usb_hid_poll();

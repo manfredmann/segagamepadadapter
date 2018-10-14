@@ -41,18 +41,9 @@ typedef struct {
   gamepad_pin_t select;
 } gamepad_gpio_t;
 
-/*typedef struct {
-  uint8_t button;
-  uint8_t pressed[12];
-} gamepad_simple_cheat_t;*/
-
-typedef uint8_t gamepad_buttons_t[12];
+typedef uint8_t *gamepad_buttons_t;
 
 void             gamepads_init(gamepad_gpio_t *gamepads, uint8_t count);
-//void             gamepads_cheat_init(gamepad_simple_cheat_t *cheat);
-//void             gamepads_cheat_set(gamepad_simple_cheat_t cheat, uint8_t n);
-//void             gamepads_cheat_unset(uint8_t n);
-
 gamepad_data_t  *gamepad_read(uint8_t gamepad);
 
 #endif

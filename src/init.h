@@ -10,7 +10,6 @@ void uart_init(void);
 
 void _usleep(uint32_t delay);
 void _msleep(uint32_t delay);
-int _write(int file, char *ptr, int len);
 
 
 #endif // INIT_H

@@ -2,6 +2,7 @@
 #include "init.h"
 #include "gpio.h"
 #include "usb_hid.h"
+#include "usb_cdc.h"
 
 static usbd_device *usbd_dev;
 
@@ -40,13 +41,22 @@ static const struct usb_interface ifaces[] = {
     .num_altsetting = 1,
     .altsetting     = &hid_iface_j3,
   },
+  {
+    .num_altsetting = 1,
+    .iface_assoc    = &uart_assoc,
+    .altsetting     = uart_comm_iface,
+  },
+  {
+    .num_altsetting = 1,
+    .altsetting     = uart_data_iface,
+  },
 };
 
 static const struct usb_config_descriptor config = {
   .bLength              = USB_DT_CONFIGURATION_SIZE,
   .bDescriptorType      = USB_DT_CONFIGURATION,
   .wTotalLength         = 0,
-  .bNumInterfaces       = 4,
+  .bNumInterfaces       = 6,
   .bConfigurationValue  = 1,
   .iConfiguration       = 0,
   .bmAttributes         = 0x80,
@@ -58,15 +68,20 @@ static const char *usb_strings[] = {
   "Manfred's Technologies(c)",
   "SEGA Gamepad adapter",
   "DEADBEEF",
+  "SEGA Gamepad 1",
+  "SEGA Gamepad 2",
+  "SEGA Gamepad 3",
+  "SEGA Gamepad 4",
+  "Debug serial",
 };
 
 static uint8_t usbd_control_buffer[256];
 
 static void usb_set_config(usbd_device *usbd_dev, uint16_t wValue) {
   (void) wValue;
-  (void) usbd_dev;
 
   usb_hid_setconfig(usbd_dev);
+  usb_cdc_setconfig(usbd_dev);
 }
 
 void usb_init(void) {
@@ -90,7 +105,7 @@ void usb_init(void) {
                        &dev,
                        &config,
                        usb_strings,
-                       3,
+                       8,
                        usbd_control_buffer,
                        sizeof(usbd_control_buffer)
   );

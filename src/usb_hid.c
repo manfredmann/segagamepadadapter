@@ -103,7 +103,7 @@ struct usb_interface_descriptor hid_iface_j0 = {
   .bInterfaceClass    = USB_CLASS_HID,
   .bInterfaceSubClass = 0,
   .bInterfaceProtocol = 0,
-  .iInterface         = 0,
+  .iInterface         = 4,
 
   .endpoint           = hid_endpoints_j0,
 
@@ -120,7 +120,7 @@ struct usb_interface_descriptor hid_iface_j1 = {
   .bInterfaceClass    = USB_CLASS_HID,
   .bInterfaceSubClass = 0,
   .bInterfaceProtocol = 0,
-  .iInterface         = 0,
+  .iInterface         = 5,
 
   .endpoint           = hid_endpoints_j1,
 
@@ -137,7 +137,7 @@ struct usb_interface_descriptor hid_iface_j2 = {
   .bInterfaceClass    = USB_CLASS_HID,
   .bInterfaceSubClass = 0,
   .bInterfaceProtocol = 0,
-  .iInterface         = 0,
+  .iInterface         = 6,
 
   .endpoint           = hid_endpoints_j2,
 
@@ -154,7 +154,7 @@ struct usb_interface_descriptor hid_iface_j3 = {
   .bInterfaceClass    = USB_CLASS_HID,
   .bInterfaceSubClass = 0,
   .bInterfaceProtocol = 0,
-  .iInterface         = 0,
+  .iInterface         = 7,
 
   .endpoint           = hid_endpoints_j3,
 
@@ -177,7 +177,7 @@ static enum usbd_request_return_codes hid_control_request(usbd_device *usbd_dev,
       return USBD_REQ_HANDLED;
     }
     default:
-      return USBD_REQ_NEXT_CALLBACK;
+      return USBD_REQ_NOTSUPP;
   }
 }
 
@@ -221,7 +221,7 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 static usbd_device *usbd_dev = NULL;
 
 void usb_hid_setconfig(usbd_device *dev) {
-  usbd_dev    = dev;
+  usbd_dev = dev;
 
   usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
   usbd_ep_setup(dev, 0x82, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);

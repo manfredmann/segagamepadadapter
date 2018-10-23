@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 typedef struct list_node {
-  void *value;
+  void             *value;
   struct list_node *next;
 } list_node_t;
 
@@ -14,7 +14,7 @@ typedef struct {
   uint32_t      size;
 } list_t;
 
-list_t *list_init(void);
+list_t    *list_init(void);
 void      list_push_back(list_t *list, void *value);
 uint32_t  list_length(list_t *list);
 void      *list_get(list_t *list, uint32_t i);

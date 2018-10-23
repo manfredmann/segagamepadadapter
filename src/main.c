@@ -89,15 +89,31 @@ int main(void) {
 
   gamepads_init(gamepads, 4);
 
-  gamepad_cheat_t cheat;
+  gamepad_cheat_t     cheat;
+  gamepad_cheat_btn_t btn;
 
-  //Чит для Duck Tales для NES. Нажимаем C, получаем прыжок с зонтом.
+
+  /*Чит для U-four-ia для NES.
+    На 10ом такте опроса от начала нажатия C жмём B(прыжок) и удерживаем нажатым 200 тактов.
+    На 20ом такте опроса от начала нажатия C жмём вниз.
+    Итого получаем комбинацию, для убийства врагов, на которых можно прыгать сверху.*/
+
   gamepads_cheat_init(&cheat);
-  gamepads_cheat_add_btn(cheat.act_buttons,   BTN_C);
 
-  gamepads_cheat_add_btn(cheat.press_buttons, BTN_A);
-  gamepads_cheat_add_btn(cheat.press_buttons, BTN_B);
-  gamepads_cheat_add_btn(cheat.press_buttons, BTN_DOWN);
+  btn.button = BTN_C;
+
+  gamepads_cheat_add_btn(cheat.act_buttons,   btn);
+
+  btn.button        = BTN_B;
+  btn.delay_time    = 10;
+  btn.press_time    = 200;
+  btn.keep_pressed  = false;
+  gamepads_cheat_add_btn(cheat.press_buttons, btn);
+
+  btn.button        = BTN_DOWN;
+  btn.delay_time    = 20;
+  btn.keep_pressed  = true;
+  gamepads_cheat_add_btn(cheat.press_buttons, btn);
 
   gamepads_cheat_add(&cheat, 1);
 

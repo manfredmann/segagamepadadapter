@@ -74,8 +74,8 @@ void gamepads_cheat_add(gamepad_cheat_t *cheat, uint8_t gamepad) {
   list_push_back(&gamepad_cheats[gamepad], cheat);
 }
 
-void gamepads_cheat_add_btn(list_t *buttons, uint8_t btn) {
-  uint8_t *tmp = malloc(sizeof (uint8_t));
+void gamepads_cheat_add_btn(list_t *buttons, gamepad_cheat_btn_t btn) {
+  gamepad_cheat_btn_t *tmp = malloc(sizeof(gamepad_cheat_btn_t));
   *tmp = btn;
   list_push_back(buttons, tmp);
 }
@@ -84,18 +84,35 @@ static void gamepads_cheat_accept(gamepad_cheat_t *cheat, gamepad_buttons_t butt
   bool activate = false;
 
   for (uint32_t j = 0; j < list_length(cheat->act_buttons); ++j) {
-    uint8_t *btn = (uint8_t *) list_get(cheat->act_buttons, j);
-    if (buttons[*btn] & 0x1) {
+    gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->act_buttons, j);
+    if (buttons[btn->button] & 0x1) {
       activate = true;
     }
   }
 
   if (activate) {
     for (uint32_t j = 0; j < list_length(cheat->press_buttons); ++j) {
-      uint8_t *btn = (uint8_t *) list_get(cheat->press_buttons, j);
-      buttons[*btn] = 0xFF;
+      gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->press_buttons, j);
+
+      if (btn->delay_last == 0) {
+        if (!btn->keep_pressed) {
+          if (btn->press_last > 0) {
+            buttons[btn->button] = 0xFF;
+            --btn->press_last;
+          }
+        } else {
+          buttons[btn->button] = 0xFF;
+        }
+      } else {
+        btn->delay_last--;
+      }
     }
   } else {
+    for (uint32_t j = 0; j < list_length(cheat->press_buttons); ++j) {
+      gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->press_buttons, j);
+      btn->delay_last = btn->delay_time;
+      btn->press_last = btn->press_time;
+    }
   }
 }
 

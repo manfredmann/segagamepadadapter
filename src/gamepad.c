@@ -6,7 +6,7 @@
 static gamepad_data_t         gamepad_data;
 static uint8_t                gamepad_count;
 static gamepad_buttons_t      gamepad_buttons;
-static gamepad_gpio_t         *gamepad_gpio = NULL;
+static gamepad_gpio_t         *gamepad_gpio   = NULL;
 static list_t                 *gamepad_cheats = NULL;
 
 static void init_port(uint32_t port) {
@@ -165,8 +165,9 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   DELAY();
 
   // Применим читы
-  for (uint32_t i = 0; i < list_length(&gamepad_cheats[gamepad]); ++i) {
-    gamepad_cheat_t *cheat = list_get(&gamepad_cheats[gamepad], i);
+  list_node_t *node = NULL;
+  while ((node = list_iter(&gamepad_cheats[gamepad], node)) != NULL) {
+    gamepad_cheat_t *cheat = (gamepad_cheat_t *) node->value;
     gamepads_cheat_accept(cheat, buttons);
   }
 

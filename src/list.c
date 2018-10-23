@@ -19,9 +19,9 @@ list_t * list_init(void) {
 
 void list_push_back(list_t *list, void *value) {
   if (list->head == NULL) {
-    list->head = list_make_node(value);
-    list->size = 1;
-    list->bottom = list->head;
+    list->head    = list_make_node(value);
+    list->bottom  = list->head;
+    list->size    = 1;
     return;
   }
 

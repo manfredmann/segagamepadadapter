@@ -60,8 +60,9 @@ void gamepads_init(gamepad_gpio_t *gamepads, uint8_t count) {
 
     gpio_set_mode(gamepads[i].select.port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, gamepads[i].select.pin);
 
-    gamepad_cheats[i].next = NULL;
-    gamepad_cheats[i].size = 0;
+    gamepad_cheats[i].head    = NULL;
+    gamepad_cheats[i].bottom  = NULL;
+    gamepad_cheats[i].size    = 0;
   }
 }
 
@@ -83,17 +84,20 @@ void gamepads_cheat_add_btn(list_t *buttons, gamepad_cheat_btn_t btn) {
 static void gamepads_cheat_accept(gamepad_cheat_t *cheat, gamepad_buttons_t buttons) {
   bool activate = false;
 
-  for (uint32_t j = 0; j < list_length(cheat->act_buttons); ++j) {
-    gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->act_buttons, j);
+  list_node_t *node = NULL;
+
+  while ((node = list_iter(cheat->act_buttons, node)) != NULL) {
+    gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) node->value;
+
     if (buttons[btn->button] & 0x1) {
       activate = true;
     }
   }
 
-  if (activate) {
-    for (uint32_t j = 0; j < list_length(cheat->press_buttons); ++j) {
-      gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->press_buttons, j);
+  while ((node = list_iter(cheat->press_buttons, node)) != NULL) {
+    gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) node->value;
 
+    if (activate) {
       if (btn->delay_last == 0) {
         if (!btn->keep_pressed) {
           if (btn->press_last > 0) {
@@ -104,12 +108,9 @@ static void gamepads_cheat_accept(gamepad_cheat_t *cheat, gamepad_buttons_t butt
           buttons[btn->button] = 0xFF;
         }
       } else {
-        btn->delay_last--;
+        --btn->delay_last;
       }
-    }
-  } else {
-    for (uint32_t j = 0; j < list_length(cheat->press_buttons); ++j) {
-      gamepad_cheat_btn_t *btn = (gamepad_cheat_btn_t *) list_get(cheat->press_buttons, j);
+    } else {
       btn->delay_last = btn->delay_time;
       btn->press_last = btn->press_time;
     }

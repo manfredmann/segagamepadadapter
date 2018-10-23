@@ -7,6 +7,7 @@ static gamepad_data_t         gamepad_data;
 static uint8_t                gamepad_count;
 static gamepad_buttons_t      gamepad_buttons;
 static gamepad_gpio_t         *gamepad_gpio = NULL;
+static list_t                 *gamepad_cheats = NULL;
 
 static void init_port(uint32_t port) {
   switch (port) {
@@ -39,6 +40,7 @@ void gamepads_init(gamepad_gpio_t *gamepads, uint8_t count) {
   gamepad_gpio  = gamepads;
 
   gamepad_buttons = malloc(sizeof(uint8_t) * 12 * gamepad_count);
+  gamepad_cheats = malloc(sizeof(list_t) * gamepad_count);
 
   for (uint8_t i = 0; i < count; ++i) {
     init_port(gamepads[i].data0.port);
@@ -57,6 +59,43 @@ void gamepads_init(gamepad_gpio_t *gamepads, uint8_t count) {
     gpio_set_mode(gamepads[i].data5.port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, gamepads[i].data5.pin);
 
     gpio_set_mode(gamepads[i].select.port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, gamepads[i].select.pin);
+
+    gamepad_cheats[i].next = NULL;
+    gamepad_cheats[i].size = 0;
+  }
+}
+
+void gamepads_cheat_init(gamepad_cheat_t *cheat) {
+  cheat->act_buttons = list_init();
+  cheat->press_buttons = list_init();
+}
+
+void gamepads_cheat_add(gamepad_cheat_t *cheat, uint8_t gamepad) {
+  list_push_back(&gamepad_cheats[gamepad], cheat);
+}
+
+void gamepads_cheat_add_btn(list_t *buttons, uint8_t btn) {
+  uint8_t *tmp = malloc(sizeof (uint8_t));
+  *tmp = btn;
+  list_push_back(buttons, tmp);
+}
+
+static void gamepads_cheat_accept(gamepad_cheat_t *cheat, gamepad_buttons_t buttons) {
+  bool activate = false;
+
+  for (uint32_t j = 0; j < list_length(cheat->act_buttons); ++j) {
+    uint8_t *btn = (uint8_t *) list_get(cheat->act_buttons, j);
+    if (buttons[*btn] & 0x1) {
+      activate = true;
+    }
+  }
+
+  if (activate) {
+    for (uint32_t j = 0; j < list_length(cheat->press_buttons); ++j) {
+      uint8_t *btn = (uint8_t *) list_get(cheat->press_buttons, j);
+      buttons[*btn] = 0xFF;
+    }
+  } else {
   }
 }
 
@@ -106,6 +145,12 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
 
   gpio_set(gp->select.port,   gp->select.pin);
   DELAY();
+
+  // Применим читы
+  for (uint32_t i = 0; i < list_length(&gamepad_cheats[gamepad]); ++i) {
+    gamepad_cheat_t *cheat = list_get(&gamepad_cheats[gamepad], i);
+    gamepads_cheat_accept(cheat, buttons);
+  }
 
   gamepad_data.buttons  = 0x00;
   gamepad_data.buttons |= (buttons[BTN_A]     & 0x1) << 0;

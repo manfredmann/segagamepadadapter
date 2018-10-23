@@ -43,6 +43,10 @@ static const struct usb_interface ifaces[] = {
   },
   {
     .num_altsetting = 1,
+    .altsetting     = &hid_iface_config,
+  },
+  {
+    .num_altsetting = 1,
     .iface_assoc    = &uart_assoc,
     .altsetting     = uart_comm_iface,
   },
@@ -56,7 +60,7 @@ static const struct usb_config_descriptor config = {
   .bLength              = USB_DT_CONFIGURATION_SIZE,
   .bDescriptorType      = USB_DT_CONFIGURATION,
   .wTotalLength         = 0,
-  .bNumInterfaces       = 6,
+  .bNumInterfaces       = 7,
   .bConfigurationValue  = 1,
   .iConfiguration       = 0,
   .bmAttributes         = 0x80,
@@ -72,6 +76,7 @@ static const char *usb_strings[] = {
   "SEGA Gamepad 2",
   "SEGA Gamepad 3",
   "SEGA Gamepad 4",
+  "Configuration",
   "Debug serial",
 };
 

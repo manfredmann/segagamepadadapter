@@ -89,6 +89,18 @@ int main(void) {
 
   gamepads_init(gamepads, 4);
 
+  gamepad_cheat_t cheat;
+
+  //Чит для Duck Tales для NES. Нажимаем C, получаем прыжок с зонтом.
+  gamepads_cheat_init(&cheat);
+  gamepads_cheat_add_btn(cheat.act_buttons,   BTN_C);
+
+  gamepads_cheat_add_btn(cheat.press_buttons, BTN_A);
+  gamepads_cheat_add_btn(cheat.press_buttons, BTN_B);
+  gamepads_cheat_add_btn(cheat.press_buttons, BTN_DOWN);
+
+  gamepads_cheat_add(&cheat, 1);
+
   gamepads_en();
   while(1) {
     usb_hid_poll();

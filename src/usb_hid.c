@@ -30,6 +30,18 @@ static uint8_t hid_report_descriptor[] = {
   HID_END_COLLECTION (APPLICATION),
 };
 
+static uint8_t hid_config_report_descriptor[] = {
+  HID_USAGE_PAGE (GENERIC_DEVICE),
+  HID_USAGE (UNDEFINED),
+  HID_COLLECTION (APPLICATION),
+    HID_LOGICAL_MINIMUM (1, 0),
+    HID_LOGICAL_MAXIMUM (1, 255),
+    HID_REPORT_SIZE (8),
+    HID_REPORT_SIZE (64),
+    HID_USAGE (UNDEFINED),
+  HID_END_COLLECTION (APPLICATION),
+};
+
 static const struct {
   struct usb_hid_descriptor hid_descriptor;
   struct {
@@ -47,6 +59,26 @@ static const struct {
   .hid_report = {
     .bReportDescriptorType  = USB_DT_REPORT,
     .wDescriptorLength      = sizeof(hid_report_descriptor),
+  },
+};
+
+static const struct {
+  struct usb_hid_descriptor hid_descriptor;
+  struct {
+    uint8_t bReportDescriptorType;
+    uint16_t wDescriptorLength;
+  } __attribute__((packed)) hid_report;
+} __attribute__((packed)) hid_config_function = {
+  .hid_descriptor = {
+    .bLength          = sizeof(hid_config_function),
+    .bDescriptorType  = USB_DT_HID,
+    .bcdHID           = 0x0111,
+    .bCountryCode     = 23,
+    .bNumDescriptors  = 1,
+  },
+  .hid_report = {
+    .bReportDescriptorType  = USB_DT_REPORT,
+    .wDescriptorLength      = sizeof(hid_config_report_descriptor),
   },
 };
 
@@ -92,6 +124,25 @@ static const struct usb_endpoint_descriptor hid_endpoints_j3[] = {
     .wMaxPacketSize   = 6,
     .bInterval        = 0x02,
   },
+};
+
+static const struct usb_endpoint_descriptor hid_config_endpoints[] = {
+  {
+    .bLength          = USB_DT_ENDPOINT_SIZE,
+    .bDescriptorType  = USB_DT_ENDPOINT,
+    .bEndpointAddress = 0x85,
+    .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
+    .wMaxPacketSize   = 64,
+    .bInterval        = 0x02,
+  },
+  {
+    .bLength          = USB_DT_ENDPOINT_SIZE,
+    .bDescriptorType  = USB_DT_ENDPOINT,
+    .bEndpointAddress = 0x05,
+    .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
+    .wMaxPacketSize   = 64,
+    .bInterval        = 0x02,
+  }
 };
 
 struct usb_interface_descriptor hid_iface_j0 = {
@@ -162,6 +213,24 @@ struct usb_interface_descriptor hid_iface_j3 = {
   .extralen           = sizeof(hid_function),
 };
 
+struct usb_interface_descriptor hid_iface_config = {
+  .bLength            = USB_DT_INTERFACE_SIZE,
+  .bDescriptorType    = USB_DT_INTERFACE,
+  .bInterfaceNumber   = 4,
+  .bAlternateSetting  = 0,
+  .bNumEndpoints      = 2,
+  .bInterfaceClass    = USB_CLASS_HID,
+  .bInterfaceSubClass = 0,
+  .bInterfaceProtocol = 0,
+  .iInterface         = 8,
+
+  .endpoint           = hid_config_endpoints,
+
+  .extra              = &hid_config_function,
+  .extralen           = sizeof(hid_config_function),
+};
+
+
 static enum usbd_request_return_codes hid_control_request(usbd_device *usbd_dev,
                                                           struct usb_setup_data *req,
                                                           uint8_t **buf,
@@ -172,8 +241,20 @@ static enum usbd_request_return_codes hid_control_request(usbd_device *usbd_dev,
 
   switch(req->bRequest) {
     case USB_REQ_GET_DESCRIPTOR: {
-      *buf = (uint8_t *)hid_report_descriptor;
-      *len = sizeof(hid_report_descriptor);
+      switch (req->wIndex) {
+        default:
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          *buf = (uint8_t *)hid_report_descriptor;
+          *len = sizeof(hid_report_descriptor);
+          break;
+        case 4:
+          *buf = (uint8_t *)hid_config_report_descriptor;
+          *len = sizeof(hid_config_report_descriptor);
+      }
+
       return USBD_REQ_HANDLED;
     }
     default:
@@ -191,7 +272,7 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 
   switch (ep) {
     case 0x01: {
-      gamepad_data_t *gamepad_data = gamepad_read(0);
+      gamepad_data_t *gamepad_data = gamepad_read(1);
       buf[0] = gamepad_data->buttons;
       buf[1] = (uint8_t) gamepad_data->x;
       buf[2] = (uint8_t) gamepad_data->y;
@@ -220,6 +301,14 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
   usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
 }
 
+static void config_endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
+
+}
+
+static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
+
+}
+
 static usbd_device *usbd_dev = NULL;
 
 void usb_hid_setconfig(usbd_device *dev) {
@@ -230,9 +319,12 @@ void usb_hid_setconfig(usbd_device *dev) {
   usbd_ep_setup(dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
   usbd_ep_setup(dev, 0x84, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
 
+  usbd_ep_setup(dev, 0x85, USB_ENDPOINT_ATTR_INTERRUPT, 64, config_endpoint_in_callback);
+  usbd_ep_setup(dev, 0x05, USB_ENDPOINT_ATTR_INTERRUPT, 64, config_endpoint_out_callback);
+
   usbd_register_control_callback(dev,
                                  USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_INTERFACE,
-                                 USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
+                                 USB_REQ_TYPE_TYPE     | USB_REQ_TYPE_RECIPIENT,
                                  hid_control_request);
 }
 

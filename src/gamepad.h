@@ -3,6 +3,7 @@
 
 #include "misc.h"
 #include "gpio.h"
+#include "list.h"
 
 #define BTN_UP    0
 #define BTN_DOWN  1
@@ -41,9 +42,19 @@ typedef struct {
   gamepad_pin_t select;
 } gamepad_gpio_t;
 
+typedef struct {
+  list_t    *act_buttons;
+  list_t    *press_buttons;
+} gamepad_cheat_t;
+
 typedef uint8_t *gamepad_buttons_t;
 
 void             gamepads_init(gamepad_gpio_t *gamepads, uint8_t count);
+
+void             gamepads_cheat_init(gamepad_cheat_t *cheat);
+void             gamepads_cheat_add(gamepad_cheat_t *cheat, uint8_t gamepad);
+void             gamepads_cheat_add_btn(list_t *buttons, uint8_t btn);
+
 gamepad_data_t  *gamepad_read(uint8_t gamepad);
 
 #endif

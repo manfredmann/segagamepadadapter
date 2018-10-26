@@ -101,9 +101,7 @@ void storage_clear(void) {
   debugf("  --------------------- End ---------------------\n");
 }
 
-uint8_t storage_add_macro(storage_macro_t *macro, storage_btn_t *acts, storage_btn_t *pressed) {
-  (void) acts;
-  (void) pressed;
+uint8_t storage_add_macro(storage_macro_t *macro, storage_btns_t buttons) {
 
   debugf("  ------------------ Add macro ------------------\n");
   debugf("- Adding %s\n", macro->name);
@@ -132,12 +130,12 @@ uint8_t storage_add_macro(storage_macro_t *macro, storage_btn_t *acts, storage_b
 
   for (uint8_t btn = 0; btn < macro->act_count; ++btn) {
     uint8_t *btn_offset = buf + page_offset + sizeof(storage_macro_t) + (sizeof(storage_btn_t) * btn);
-    memcpy(btn_offset, acts + btn, sizeof(storage_btn_t));
+    memcpy(btn_offset, buttons.acts + btn, sizeof(storage_btn_t));
   }
 
   for (uint8_t btn = 0; btn < macro->press_count; ++btn) {
     uint8_t *btn_offset = buf + page_offset + sizeof(storage_macro_t) + (sizeof(storage_btn_t) * STORAGE_MAX_ACTS) + (sizeof(storage_btn_t) * btn);
-    memcpy(btn_offset, pressed + btn, sizeof(storage_btn_t));
+    memcpy(btn_offset, buttons.pressed + btn, sizeof(storage_btn_t));
   }
 
   storage_write_page((uint32_t )mem + flash_offset, buf);

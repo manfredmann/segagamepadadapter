@@ -322,8 +322,7 @@ static void config_endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 }
 
 static storage_macro_t *macro_new           = NULL;
-static storage_btn_t   *macro_new_acts      = NULL;
-static storage_btn_t   *macro_new_press     = NULL;
+static storage_btns_t  macro_new_buttons;
 static uint32_t        macro_new_acts_ptr   = 0;
 static uint32_t        macro_new_press_ptr  = 0;
 
@@ -336,7 +335,7 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
   usbd_ep_read_packet(usbd, ep, buf, sizeof(buf));
   memcpy(&cmd, buf, sizeof(sgad_cmd_t));
 
-  //debugf("- Received cmd: 0x%04X\n", (unsigned int) cmd.cmd);
+  debugf("- Received cmd: 0x%04X\n", (unsigned int) cmd.cmd);
 
   switch (cmd.cmd) {
     case SGAD_CMD_MACRO_CLEAR: {
@@ -351,14 +350,14 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
         free(macro_new);
         macro_new = NULL;
 
-        if (macro_new_acts != NULL) {
-          free(macro_new_acts);
-          macro_new_acts = NULL;
+        if (macro_new_buttons.acts != NULL) {
+          free(macro_new_buttons.acts);
+          macro_new_buttons.acts = NULL;
         }
 
-        if (macro_new_press != NULL) {
-          free(macro_new_press);
-          macro_new_press = NULL;
+        if (macro_new_buttons.pressed != NULL) {
+          free(macro_new_buttons.pressed);
+          macro_new_buttons.pressed = NULL;
         }
       }
 
@@ -371,8 +370,8 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
         break;
       }
 
-      macro_new_acts      = malloc(sizeof(storage_btn_t) * macro_new->act_count);
-      macro_new_press     = malloc(sizeof(storage_btn_t) * macro_new->press_count);
+      macro_new_buttons.acts    = malloc(sizeof(storage_btn_t) * macro_new->act_count);
+      macro_new_buttons.pressed = malloc(sizeof(storage_btn_t) * macro_new->press_count);
       macro_new_acts_ptr  = 0;
       macro_new_press_ptr = 0;
 
@@ -381,24 +380,34 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
     case SGAD_CMD_MACRO_ACT: {
       answ.cmd = SGAD_CMD_OK;
 
-      if (macro_new == NULL || macro_new_acts == NULL) {
+      if (macro_new == NULL || macro_new_buttons.acts == NULL) {
         answ.cmd = SGAD_CMD_UNKNOWN;
         break;
       }
 
-      memcpy(macro_new_acts + macro_new_acts_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
+      if (macro_new_acts_ptr == macro_new->act_count) {
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      memcpy(macro_new_buttons.acts + macro_new_acts_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
       ++macro_new_acts_ptr;
       break;
     }
     case SGAD_CMD_MACRO_PRESS: {
       answ.cmd = SGAD_CMD_OK;
 
-      if (macro_new == NULL || macro_new_acts == NULL) {
+      if (macro_new == NULL || macro_new_buttons.pressed == NULL) {
         answ.cmd = SGAD_CMD_UNKNOWN;
         break;
       }
 
-      memcpy(macro_new_press + macro_new_press_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
+      if (macro_new_press_ptr == macro_new->press_count) {
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      memcpy(macro_new_buttons.pressed + macro_new_press_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
       ++macro_new_press_ptr;
       break;
     }
@@ -410,15 +419,15 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
         break;
       }
 
-      storage_add_macro(macro_new, macro_new_acts, macro_new_press);
+      storage_add_macro(macro_new, macro_new_buttons);
 
       free(macro_new);
-      free(macro_new_acts);
-      free(macro_new_press);
+      free(macro_new_buttons.acts);
+      free(macro_new_buttons.pressed);
 
-      macro_new       = NULL;
-      macro_new_acts  = NULL;
-      macro_new_press = NULL;
+      macro_new                 = NULL;
+      macro_new_buttons.acts    = NULL;
+      macro_new_buttons.pressed = NULL;
 
       break;
     }
@@ -430,7 +439,7 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
   memcpy(buf, &answ, sizeof(sgad_cmd_t));
   usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
 
-  //debugf("- Answered cmd: 0x%04X \n", (unsigned int) answ.cmd);
+  debugf("- Answered cmd: 0x%04X \n", (unsigned int) answ.cmd);
 }
 
 static usbd_device *usbd_dev = NULL;

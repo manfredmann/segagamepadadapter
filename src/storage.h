@@ -52,7 +52,7 @@ typedef struct {
 
 void          storage_init(void);
 void          storage_clear(void);
-uint8_t       storage_add_macro(storage_macro_t *macro, storage_btn_t *acts, storage_btn_t *pressed);
+uint8_t       storage_add_macro(storage_macro_t *macro, storage_btns_t buttons);
 uint8_t       storage_remove_macro(storage_macro_t macro);
 void          storage_print(void);
 storage_map_t storage_get_macro_list(void);

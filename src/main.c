@@ -135,7 +135,6 @@ int main(void) {
       btn.press_time = (buttons.pressed + j)->time_press;
       btn.keep_pressed = (buttons.pressed + j)->keep;
       gamepads_cheat_add_btn(cheat->press_buttons, btn);
-      debugf("%d\n", btn.button);
     }
 
     free(buttons.acts);

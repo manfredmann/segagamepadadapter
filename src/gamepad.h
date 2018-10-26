@@ -45,10 +45,10 @@ typedef struct {
 typedef struct {
   uint8_t  button;
   bool     keep_pressed;
-  uint32_t delay_time;
-  uint32_t delay_last;
-  uint32_t press_time;
-  uint32_t press_last;
+  uint16_t delay_time;
+  uint16_t delay_last;
+  uint16_t press_time;
+  uint16_t press_last;
 } gamepad_cheat_btn_t;
 
 typedef struct {
@@ -60,7 +60,7 @@ typedef uint8_t *gamepad_buttons_t;
 
 void             gamepads_init(gamepad_gpio_t *gamepads, uint8_t count);
 
-void             gamepads_cheat_init(gamepad_cheat_t *cheat);
+gamepad_cheat_t *gamepads_cheat_init(void);
 void             gamepads_cheat_add(gamepad_cheat_t *cheat, uint8_t gamepad);
 void             gamepads_cheat_add_btn(list_t *buttons, gamepad_cheat_btn_t btn);
 

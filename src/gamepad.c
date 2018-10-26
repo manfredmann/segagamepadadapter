@@ -66,9 +66,13 @@ void gamepads_init(gamepad_gpio_t *gamepads, uint8_t count) {
   }
 }
 
-void gamepads_cheat_init(gamepad_cheat_t *cheat) {
+gamepad_cheat_t *gamepads_cheat_init(void) {
+  gamepad_cheat_t *cheat = malloc(sizeof(gamepad_cheat_t));
+
   cheat->act_buttons = list_init();
   cheat->press_buttons = list_init();
+
+  return cheat;
 }
 
 void gamepads_cheat_add(gamepad_cheat_t *cheat, uint8_t gamepad) {

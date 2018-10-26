@@ -1,4 +1,5 @@
 #include "usb_cdc.h"
+#include <string.h>
 
 static const struct usb_endpoint_descriptor uart_comm_endp[] = {{
   .bLength            = USB_DT_ENDPOINT_SIZE,
@@ -102,7 +103,7 @@ struct usb_iface_assoc_descriptor uart_assoc = {
 };
 
 
-static void cdc_set_modem_state(usbd_device *dev, int iface, bool dsr, bool dcd) {
+static void cdc_set_modem_state(usbd_device *dev, uint8_t iface, bool dsr, bool dcd) {
   char buf[10];
   struct usb_cdc_notification *notif = (void*)buf;
 
@@ -138,6 +139,26 @@ static enum usbd_request_return_codes cdcacm_control_request(usbd_device *dev,
   return USBD_REQ_NOTSUPP;
 }
 
+// Некрасиво и опасно, но на данный момент не так важно
+
+static usbd_device *usbd_dev = NULL;
+
+int _write(int file, char *ptr, int len) {
+  if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+
+    for (uint16_t i = 0; i < len; i++) {
+      if (ptr[i] == '\n') {
+        usart_send_blocking(USART1, '\r');
+      }
+      usart_send_blocking(USART1, ptr[i]);
+    }
+
+    return len;
+  }
+  errno = EIO;
+  return -1;
+}
+
 static void usbuart_usb_out_cb(usbd_device *dev, uint8_t ep) {
   (void) dev;
   (void) ep;
@@ -146,17 +167,6 @@ static void usbuart_usb_out_cb(usbd_device *dev, uint8_t ep) {
 static void usbuart_usb_in_cb(usbd_device *dev, uint8_t ep) {
   (void) dev;
   (void) ep;
-}
-
-static usbd_device *usbd_dev = NULL;
-
-int _write(int file, char *ptr, int len) {
-  if (file == STDOUT_FILENO || file == STDERR_FILENO) {
-    usbd_ep_write_packet(usbd_dev, 0x86, ptr, (uint16_t) len);
-    return len;
-  }
-  errno = EIO;
-  return -1;
 }
 
 void usb_cdc_setconfig(usbd_device *dev) {

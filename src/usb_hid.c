@@ -3,6 +3,21 @@
 #include "hid_def.h"
 #include "gamepad.h"
 
+#define SGAD_CMD_MACRO_ADD_START  0x2007001
+#define SGAD_CMD_MACRO_ACT        0x2007002
+#define SGAD_CMD_MACRO_PRESS      0x2007003
+#define SGAD_CMD_MACRO_ADD_STOP   0x2007004
+#define SGAD_CMD_MACRO_CLEAR      0x2007005
+#define SGAD_CMD_MACRO_READ_START 0x2007006
+#define SGAD_CMD_MACRO_READ_STOP  0x2007007
+
+#define SGAD_CMD_UNKNOWN          0x2007099
+#define SGAD_CMD_OK               0x2007100
+
+typedef struct {
+  uint32_t cmd;
+} __attribute__((packed)) sgad_cmd_t ;
+
 static uint8_t hid_report_descriptor[] = {
   HID_USAGE_PAGE (GENERIC_DESKTOP),
   HID_USAGE(JOYSTICK),
@@ -133,7 +148,7 @@ static const struct usb_endpoint_descriptor hid_config_endpoints[] = {
     .bEndpointAddress = 0x85,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
     .wMaxPacketSize   = 64,
-    .bInterval        = 0x02,
+    .bInterval        = 0x0A,
   },
   {
     .bLength          = USB_DT_ENDPOINT_SIZE,
@@ -141,7 +156,7 @@ static const struct usb_endpoint_descriptor hid_config_endpoints[] = {
     .bEndpointAddress = 0x05,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
     .wMaxPacketSize   = 64,
-    .bInterval        = 0x02,
+    .bInterval        = 0x0A,
   }
 };
 
@@ -302,11 +317,120 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 }
 
 static void config_endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
-
+  (void) usbd;
+  (void) ep;
 }
 
-static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
+static storage_macro_t *macro_new           = NULL;
+static storage_btn_t   *macro_new_acts      = NULL;
+static storage_btn_t   *macro_new_press     = NULL;
+static uint32_t        macro_new_acts_ptr   = 0;
+static uint32_t        macro_new_press_ptr  = 0;
 
+static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
+  uint8_t buf[63];
+
+  sgad_cmd_t cmd;
+  sgad_cmd_t answ;
+
+  usbd_ep_read_packet(usbd, ep, buf, sizeof(buf));
+  memcpy(&cmd, buf, sizeof(sgad_cmd_t));
+
+  //debugf("- Received cmd: 0x%04X\n", (unsigned int) cmd.cmd);
+
+  switch (cmd.cmd) {
+    case SGAD_CMD_MACRO_CLEAR: {
+      answ.cmd = SGAD_CMD_OK;
+      storage_clear();
+      break;
+    }
+    case SGAD_CMD_MACRO_ADD_START: {
+      answ.cmd = SGAD_CMD_OK;
+
+      if (macro_new != NULL) {
+        free(macro_new);
+        macro_new = NULL;
+
+        if (macro_new_acts != NULL) {
+          free(macro_new_acts);
+          macro_new_acts = NULL;
+        }
+
+        if (macro_new_press != NULL) {
+          free(macro_new_press);
+          macro_new_press = NULL;
+        }
+      }
+
+      macro_new = malloc(sizeof(storage_macro_t));
+      memcpy(macro_new, buf + sizeof(sgad_cmd_t), sizeof(storage_macro_t));
+
+      if (macro_new->act_count == 0 || macro_new->press_count == 0) {
+        free(macro_new);
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      macro_new_acts      = malloc(sizeof(storage_btn_t) * macro_new->act_count);
+      macro_new_press     = malloc(sizeof(storage_btn_t) * macro_new->press_count);
+      macro_new_acts_ptr  = 0;
+      macro_new_press_ptr = 0;
+
+      break;
+    }
+    case SGAD_CMD_MACRO_ACT: {
+      answ.cmd = SGAD_CMD_OK;
+
+      if (macro_new == NULL || macro_new_acts == NULL) {
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      memcpy(macro_new_acts + macro_new_acts_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
+      ++macro_new_acts_ptr;
+      break;
+    }
+    case SGAD_CMD_MACRO_PRESS: {
+      answ.cmd = SGAD_CMD_OK;
+
+      if (macro_new == NULL || macro_new_acts == NULL) {
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      memcpy(macro_new_press + macro_new_press_ptr, buf + sizeof(sgad_cmd_t), sizeof(storage_btn_t));
+      ++macro_new_press_ptr;
+      break;
+    }
+    case SGAD_CMD_MACRO_ADD_STOP: {
+      answ.cmd = SGAD_CMD_OK;
+
+      if ((macro_new_acts_ptr != macro_new->act_count) || (macro_new_press_ptr != macro_new->press_count)) {
+        answ.cmd = SGAD_CMD_UNKNOWN;
+        break;
+      }
+
+      storage_add_macro(macro_new, macro_new_acts, macro_new_press);
+
+      free(macro_new);
+      free(macro_new_acts);
+      free(macro_new_press);
+
+      macro_new       = NULL;
+      macro_new_acts  = NULL;
+      macro_new_press = NULL;
+
+      break;
+    }
+    default: {
+      answ.cmd = SGAD_CMD_UNKNOWN;
+    }
+  }
+
+  memcpy(buf, &answ, sizeof(sgad_cmd_t));
+  usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
+
+  //debugf("- Answered cmd: 0x%04X \n", (unsigned int) answ.cmd);
 }
 
 static usbd_device *usbd_dev = NULL;

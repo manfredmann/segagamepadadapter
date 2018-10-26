@@ -2,6 +2,7 @@
 #define USB_HID_H
 
 #include "misc.h"
+#include "storage.h"
 
 extern struct usb_interface_descriptor hid_iface_j0;
 extern struct usb_interface_descriptor hid_iface_j1;

@@ -3,6 +3,7 @@
 #include "usb.h"
 #include "usb_hid.h"
 #include "gamepad.h"
+#include "storage.h"
 
 static gamepad_gpio_t gamepads[4] = {
   {
@@ -78,7 +79,14 @@ int main(void) {
   led_init();
   usb_init();
 
-  _msleep(10);
+  _msleep(2000);
+
+  debugf("%c[2J%c ", 27, 27);
+  debugf("--------------------------------------------------\n");
+  debugf("| SEGA Gamepad adapter      (c) manfredmann 2018 |\n");
+  debugf("| Thanks to: Cluster, lizardqueengointotheclub27 |\n");
+  debugf("--------------------------------------------------\n");
+  debugf("- Startup (orange LED blinking)...\n");
 
   for (volatile int i = 0; i < 3; i++) {
     gpio_set(GPIO_LED_PORT, GPIO_LED_INFO);
@@ -87,35 +95,54 @@ int main(void) {
     _msleep(150);
   }
 
+  debugf("- Gamepads init...\n");
   gamepads_init(gamepads, 4);
 
-  gamepad_cheat_t     cheat;
-  gamepad_cheat_btn_t btn;
+  debugf("- Storage init...\n");
+  storage_init();
+  //storage_clear();
 
+  //Временно. Просто проверка, что оно работает
 
-  /*Чит для U-four-ia для NES.
-    На 10ом такте опроса от начала нажатия C жмём B(прыжок) и удерживаем нажатым 200 тактов.
-    На 20ом такте опроса от начала нажатия C жмём вниз.
-    Итого получаем комбинацию для убийства врагов, на которых можно прыгать сверху.*/
+  storage_map_t map = storage_get_macro_list();
 
-  gamepads_cheat_init(&cheat);
+  for (uint8_t i = 0; i < STORAGE_MAX_MACRO; ++i) {
+    if (map.blocks[i] == STORAGE_BLOCK_CLEAR) {
+      continue;
+    }
 
-  btn.button = BTN_C;
+    storage_btns_t buttons;
+    storage_macro_t macro;
 
-  gamepads_cheat_add_btn(cheat.act_buttons,   btn);
+    storage_get_macro(i, &macro, &buttons);
 
-  btn.button        = BTN_B;
-  btn.delay_time    = 10;
-  btn.press_time    = 200;
-  btn.keep_pressed  = false;
-  gamepads_cheat_add_btn(cheat.press_buttons, btn);
+    gamepad_cheat_t *cheat = gamepads_cheat_init();
 
-  btn.button        = BTN_DOWN;
-  btn.delay_time    = 20;
-  btn.keep_pressed  = true;
-  gamepads_cheat_add_btn(cheat.press_buttons, btn);
+    for (uint8_t j = 0; j < macro.act_count; ++j) {
+      gamepad_cheat_btn_t btn;
 
-  gamepads_cheat_add(&cheat, 1);
+      btn.button = (buttons.acts + j)->btn;
+      btn.delay_time = 0;
+      btn.press_time = 0;
+      gamepads_cheat_add_btn(cheat->act_buttons, btn);
+    }
+
+    for (uint8_t j = 0; j < macro.press_count; ++j) {
+      gamepad_cheat_btn_t btn;
+
+      btn.button = (buttons.pressed + j)->btn;
+      btn.delay_time = (buttons.pressed + j)->time_delay;
+      btn.press_time = (buttons.pressed + j)->time_press;
+      btn.keep_pressed = (buttons.pressed + j)->keep;
+      gamepads_cheat_add_btn(cheat->press_buttons, btn);
+      debugf("%d\n", btn.button);
+    }
+
+    free(buttons.acts);
+    free(buttons.pressed);
+
+    gamepads_cheat_add(cheat, 1);
+  }
 
   gamepads_en();
   while(1) {

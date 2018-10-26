@@ -116,31 +116,31 @@ int main(void) {
 
     storage_get_macro(i, &macro, &buttons);
 
-    gamepad_cheat_t *cheat = gamepads_cheat_init();
+    gamepad_macro_t *cheat = gamepads_macro_init();
 
     for (uint8_t j = 0; j < macro.act_count; ++j) {
-      gamepad_cheat_btn_t btn;
+      gamepad_macro_btn_t btn;
 
       btn.button = (buttons.acts + j)->btn;
-      btn.delay_time = 0;
-      btn.press_time = 0;
-      gamepads_cheat_add_btn(cheat->act_buttons, btn);
+      btn.time_delay = 0;
+      btn.time_press = 0;
+      gamepads_macro_add_btn(cheat->act_buttons, btn);
     }
 
     for (uint8_t j = 0; j < macro.press_count; ++j) {
-      gamepad_cheat_btn_t btn;
+      gamepad_macro_btn_t btn;
 
       btn.button = (buttons.pressed + j)->btn;
-      btn.delay_time = (buttons.pressed + j)->time_delay;
-      btn.press_time = (buttons.pressed + j)->time_press;
+      btn.time_delay = (buttons.pressed + j)->time_delay;
+      btn.time_press = (buttons.pressed + j)->time_press;
       btn.keep_pressed = (buttons.pressed + j)->keep;
-      gamepads_cheat_add_btn(cheat->press_buttons, btn);
+      gamepads_macro_add_btn(cheat->press_buttons, btn);
     }
 
     free(buttons.acts);
     free(buttons.pressed);
 
-    gamepads_cheat_add(cheat, 1);
+    gamepads_macro_add(cheat, 1);
   }
 
   gamepads_en();

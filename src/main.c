@@ -100,48 +100,8 @@ int main(void) {
 
   debugf("- Storage init...\n");
   storage_init();
+  update_gamepads_macro();
   //storage_clear();
-
-  //Временно. Просто проверка, что оно работает
-
-  storage_map_t map = storage_get_macro_list();
-
-  for (uint8_t i = 0; i < STORAGE_MAX_MACRO; ++i) {
-    if (map.blocks[i] == STORAGE_BLOCK_CLEAR) {
-      continue;
-    }
-
-    storage_btns_t buttons;
-    storage_macro_t macro;
-
-    storage_get_macro(i, &macro, &buttons);
-
-    gamepad_macro_t *cheat = gamepads_macro_init();
-
-    for (uint8_t j = 0; j < macro.act_count; ++j) {
-      gamepad_macro_btn_t btn;
-
-      btn.button = (buttons.acts + j)->btn;
-      btn.time_delay = 0;
-      btn.time_press = 0;
-      gamepads_macro_add_btn(cheat->act_buttons, btn);
-    }
-
-    for (uint8_t j = 0; j < macro.press_count; ++j) {
-      gamepad_macro_btn_t btn;
-
-      btn.button = (buttons.pressed + j)->btn;
-      btn.time_delay = (buttons.pressed + j)->time_delay;
-      btn.time_press = (buttons.pressed + j)->time_press;
-      btn.keep_pressed = (buttons.pressed + j)->keep;
-      gamepads_macro_add_btn(cheat->press_buttons, btn);
-    }
-
-    free(buttons.acts);
-    free(buttons.pressed);
-
-    gamepads_macro_add(cheat, 1);
-  }
 
   gamepads_en();
   while(1) {

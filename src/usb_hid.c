@@ -321,6 +321,55 @@ static void config_endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
   (void) ep;
 }
 
+void update_gamepads_macro(void) {
+  gamepads_macro_clear();
+
+  storage_map_t map = storage_get_macro_list();
+
+  for (uint8_t i = 0; i < STORAGE_MAX_MACRO; ++i) {
+    if (map.blocks[i] == STORAGE_BLOCK_CLEAR) {
+      continue;
+    }
+
+    storage_btns_t buttons;
+    storage_macro_t macro;
+
+    storage_get_macro(i, &macro, &buttons);
+
+    for (uint8_t gamepad = 0; gamepad < 4; ++gamepad) {
+      if (macro.gamepads[gamepad] == 0) {
+        continue;
+      }
+
+      gamepad_macro_t *g_macro = gamepads_macro_init();
+
+      for (uint8_t j = 0; j < macro.act_count; ++j) {
+        gamepad_macro_btn_t btn;
+
+        btn.button = (buttons.acts + j)->btn;
+        btn.time_delay = 0;
+        btn.time_press = 0;
+        gamepads_macro_add_btn(g_macro->act_buttons, btn);
+      }
+
+      for (uint8_t j = 0; j < macro.press_count; ++j) {
+        gamepad_macro_btn_t btn;
+
+        btn.button = (buttons.pressed + j)->btn;
+        btn.time_delay = (buttons.pressed + j)->time_delay;
+        btn.time_press = (buttons.pressed + j)->time_press;
+        btn.keep_pressed = (buttons.pressed + j)->keep;
+        gamepads_macro_add_btn(g_macro->press_buttons, btn);
+      }
+
+      free(buttons.acts);
+      free(buttons.pressed);
+
+      gamepads_macro_add(g_macro, gamepad);
+    }
+  }
+}
+
 static storage_macro_t *macro_new           = NULL;
 static storage_btns_t  macro_new_buttons;
 static uint32_t        macro_new_acts_ptr   = 0;
@@ -341,6 +390,7 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
     case SGAD_CMD_MACRO_CLEAR: {
       answ.cmd = SGAD_CMD_OK;
       storage_clear();
+      update_gamepads_macro();
       break;
     }
     case SGAD_CMD_MACRO_ADD_START: {
@@ -429,6 +479,13 @@ static void config_endpoint_out_callback(usbd_device *usbd, uint8_t ep) {
       macro_new_buttons.acts    = NULL;
       macro_new_buttons.pressed = NULL;
 
+      update_gamepads_macro();
+      break;
+    }
+    case SGAD_CMD_MACRO_READ_START: {
+      break;
+    }
+    case SGAD_CMD_MACRO_READ_STOP: {
       break;
     }
     default: {

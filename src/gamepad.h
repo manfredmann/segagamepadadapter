@@ -63,6 +63,7 @@ void             gamepads_init(gamepad_gpio_t *gamepads, uint8_t count);
 gamepad_macro_t *gamepads_macro_init(void);
 void             gamepads_macro_add(gamepad_macro_t *macro, uint8_t gamepad);
 void             gamepads_macro_add_btn(list_t *buttons, gamepad_macro_btn_t btn);
+void             gamepads_macro_clear(void);
 
 gamepad_data_t  *gamepad_read(uint8_t gamepad);
 

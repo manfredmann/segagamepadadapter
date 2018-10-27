@@ -85,6 +85,22 @@ void gamepads_macro_add_btn(list_t *buttons, gamepad_macro_btn_t btn) {
   list_push_back(buttons, tmp);
 }
 
+void gamepads_macro_clear(void) {
+  list_node_t *node       = NULL;
+
+  for (uint8_t gamepad = 0; gamepad < gamepad_count; ++gamepad) {
+    while ((node = list_iter(&gamepad_macros[gamepad], node)) != NULL) {
+      gamepad_macro_t *macro = (gamepad_macro_t *) node->value;
+
+      list_clear(macro->act_buttons);
+      list_clear(macro->press_buttons);
+      free(macro->act_buttons);
+      free(macro->press_buttons);
+    }
+    list_clear(&gamepad_macros[gamepad]);
+  }
+}
+
 static void gamepads_macro_accept(gamepad_macro_t *macro, gamepad_buttons_t buttons) {
   bool activate = false;
 
@@ -95,6 +111,8 @@ static void gamepads_macro_accept(gamepad_macro_t *macro, gamepad_buttons_t butt
 
     if (buttons[btn->button] & 0x1) {
       activate = true;
+    } else {
+      activate = false;
     }
   }
 
@@ -168,7 +186,7 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   gpio_set(gp->select.port,   gp->select.pin);
   DELAY();
 
-  // Применим читы
+  // Применим макросы
   list_node_t *node = NULL;
   while ((node = list_iter(&gamepad_macros[gamepad], node)) != NULL) {
     gamepad_macro_t *macro = (gamepad_macro_t *) node->value;

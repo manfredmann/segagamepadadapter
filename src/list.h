@@ -6,6 +6,7 @@
 
 typedef struct list_node {
   void *value;
+  struct list_node *previous;
   struct list_node *next;
 } list_node_t;
 
@@ -20,5 +21,6 @@ void        list_push_back(list_t *list, void *value);
 uint32_t    list_length(list_t *list);
 void        *list_get(list_t *list, uint32_t i);
 list_node_t *list_iter(list_t *list, list_node_t *node);
+void        list_clear(list_t *list);
 
 #endif

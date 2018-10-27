@@ -2,8 +2,9 @@
 
 static list_node_t *list_make_node(void *value) {
   list_node_t *node = malloc(sizeof(list_node_t));
-  node->value  = value;
-  node->next   = NULL;
+  node->value     = value;
+  node->next      = NULL;
+  node->previous  = NULL;
 
   return node;
 }
@@ -28,6 +29,8 @@ void list_push_back(list_t *list, void *value) {
   list_node_t *node = list->bottom;
 
   node->next = list_make_node(value);
+  node->next->previous = node;
+
   list->bottom = node->next;
 
   ++list->size;
@@ -74,4 +77,30 @@ list_node_t *list_iter(list_t *list, list_node_t *node) {
       return NULL;
     }
   }
+}
+
+void list_clear(list_t *list) {
+  if (list->bottom == NULL) {
+    return;
+  }
+
+  while (list->head != list->bottom) {
+    list_node_t *node = list->bottom;
+    list->bottom = node->previous;
+
+    if (node->value != NULL) {
+      free(node->value);
+    }
+
+    free(node);
+  }
+
+  if (list->bottom->value != NULL) {
+    free(list->bottom->value);
+  }
+
+  free(list->bottom);
+  list->bottom = NULL;
+  list->head   = NULL;
+  list->size   = 0;
 }

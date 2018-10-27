@@ -12,5 +12,6 @@ extern struct usb_interface_descriptor hid_iface_config;
 
 void usb_hid_setconfig(usbd_device *dev);
 void usb_hid_poll(void);
+void update_gamepads_macro(void);
 
 #endif

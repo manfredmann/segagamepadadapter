@@ -113,6 +113,7 @@ static void gamepads_macro_accept(gamepad_macro_t *macro, gamepad_buttons_t butt
       activate = true;
     } else {
       activate = false;
+      break;
     }
   }
 

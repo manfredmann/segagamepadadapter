@@ -96,23 +96,25 @@ int main(void) {
   uart_init();
   systick_init();
   led_init();
-  usb_init();
-
-  _msleep(2000);
 
   debugf("%c[2J%c ", 27, 27);
-  debugf("--------------------------------------------------\n");
-  debugf("| SEGA Gamepad adapter      (c) manfredmann 2018 |\n");
-  debugf("| Thanks to: Cluster, lizardqueengointotheclub27 |\n");
-  debugf("--------------------------------------------------\n");
+  debugf("---------------------------------------------------------------------------\n");
+  debugf("| SEGA Gamepad adapter    Copyright (C) 2018 Roman Serov <roman@serov.co> |\n");
+  debugf("| Thanks to:              Cluster, lizardqueengointotheclub27             |\n");
+  debugf("| License:                GPL-3.0  See <http://www.gnu.org/licenses/>     |\n");
+  debugf("---------------------------------------------------------------------------\n");
+  debugf("\n");
   debugf("- Startup (orange LED blinking)...\n");
 
-  for (volatile int i = 0; i < 3; i++) {
+  for (volatile int i = 0; i < 13; i++) {
     gpio_set(GPIO_LED_PORT, GPIO_LED_INFO);
     _msleep(150);
     gpio_clear(GPIO_LED_PORT, GPIO_LED_INFO);
     _msleep(150);
   }
+
+  debugf("- USB init...\n");
+  usb_init();
 
   debugf("- Gamepads init...\n");
   gamepads_init(gamepads, 4);

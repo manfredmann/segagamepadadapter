@@ -96,6 +96,7 @@ int main(void) {
   uart_init();
   systick_init();
   led_init();
+  usb_init();
 
   debugf("%c[2J%c ", 27, 27);
   debugf("---------------------------------------------------------------------------\n");
@@ -112,9 +113,6 @@ int main(void) {
     gpio_clear(GPIO_LED_PORT, GPIO_LED_INFO);
     _msleep(150);
   }
-
-  debugf("- USB init...\n");
-  usb_init();
 
   debugf("- Gamepads init...\n");
   gamepads_init(gamepads, 4);

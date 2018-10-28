@@ -139,7 +139,7 @@ uint8_t storage_add_macro(storage_macro_t *macro, storage_btns_t buttons) {
   uint32_t page_offset  = STORAGE_PAGE_OFFSET(offset);
 
   debugf("- Flash addr:    0x%08X\n", (unsigned int) mem);
-  debugf("- Flash offset:  0x%04X\n", (unsigned int) flash_offset);
+  debugf("- Flash offset:  0x%04X (0x%08X)\n", (unsigned int) flash_offset, (unsigned int) mem + flash_offset);
   debugf("- Page offset:   0x%02X\n", (unsigned int) page_offset);
 
   storage_read_page((uint32_t) mem + flash_offset, buf);
@@ -181,7 +181,7 @@ uint8_t storage_remove_macro(storage_macro_t macro) {
   uint32_t page_offset  = STORAGE_PAGE_OFFSET(offset);
 
   debugf("- Flash addr:    0x%08X\n", (unsigned int) mem);
-  debugf("- Flash offset:  0x%04X\n", (unsigned int) flash_offset);
+  debugf("- Flash offset:  0x%04X (0x%08X)\n", (unsigned int) flash_offset, (unsigned int) mem + flash_offset);
   debugf("- Page offset:   0x%02X\n", (unsigned int) page_offset);
 
   storage_read_page((uint32_t)(mem + flash_offset), buf);
@@ -260,7 +260,7 @@ uint8_t storage_get_macro(uint8_t block_id, storage_macro_t *macro, storage_btns
   uint32_t page_offset  = STORAGE_PAGE_OFFSET(offset);
 
   debugf("- Flash addr:    0x%08X\n", (unsigned int) mem);
-  debugf("- Flash offset:  0x%04X\n", (unsigned int) flash_offset);
+  debugf("- Flash offset:  0x%04X (0x%08X)\n", (unsigned int) flash_offset, (unsigned int) mem + flash_offset);
   debugf("- Page offset:   0x%02X\n", (unsigned int) page_offset);
 
   storage_read_page((uint32_t)(mem + flash_offset), buf);

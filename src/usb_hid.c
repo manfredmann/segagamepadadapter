@@ -103,7 +103,7 @@ static const struct usb_endpoint_descriptor hid_endpoints_j0[] = {
     .bDescriptorType  = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x81,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
-    .wMaxPacketSize   = 6,
+    .wMaxPacketSize   = 4,
     .bInterval        = 0x02,
   },
 };
@@ -114,7 +114,7 @@ static const struct usb_endpoint_descriptor hid_endpoints_j1[] = {
     .bDescriptorType  = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x82,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
-    .wMaxPacketSize   = 6,
+    .wMaxPacketSize   = 4,
     .bInterval        = 0x02,
   },
 };
@@ -125,7 +125,7 @@ static const struct usb_endpoint_descriptor hid_endpoints_j2[] = {
     .bDescriptorType  = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x83,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
-    .wMaxPacketSize   = 6,
+    .wMaxPacketSize   = 4,
     .bInterval        = 0x02,
   },
 };
@@ -136,7 +136,7 @@ static const struct usb_endpoint_descriptor hid_endpoints_j3[] = {
     .bDescriptorType  = USB_DT_ENDPOINT,
     .bEndpointAddress = 0x84,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
-    .wMaxPacketSize   = 6,
+    .wMaxPacketSize   = 4,
     .bInterval        = 0x02,
   },
 };
@@ -346,19 +346,20 @@ void update_gamepads_macro(void) {
       for (uint8_t j = 0; j < macro.act_count; ++j) {
         gamepad_macro_btn_t btn;
 
-        btn.button = (buttons.acts + j)->btn;
-        btn.time_delay = 0;
-        btn.time_press = 0;
+        btn.button        = (buttons.acts + j)->btn;
+        btn.time_delay    = 0;
+        btn.time_press    = 0;
+        btn.keep_pressed  = (buttons.acts + j)->keep;
         gamepads_macro_add_btn(g_macro->act_buttons, btn);
       }
 
       for (uint8_t j = 0; j < macro.press_count; ++j) {
         gamepad_macro_btn_t btn;
 
-        btn.button = (buttons.pressed + j)->btn;
-        btn.time_delay = (buttons.pressed + j)->time_delay;
-        btn.time_press = (buttons.pressed + j)->time_press;
-        btn.keep_pressed = (buttons.pressed + j)->keep;
+        btn.button        = (buttons.pressed + j)->btn;
+        btn.time_delay    = (buttons.pressed + j)->time_delay;
+        btn.time_press    = (buttons.pressed + j)->time_press;
+        btn.keep_pressed  = (buttons.pressed + j)->keep;
         gamepads_macro_add_btn(g_macro->press_buttons, btn);
       }
 
@@ -504,10 +505,10 @@ static usbd_device *usbd_dev = NULL;
 void usb_hid_setconfig(usbd_device *dev) {
   usbd_dev = dev;
 
-  usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
-  usbd_ep_setup(dev, 0x82, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
-  usbd_ep_setup(dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
-  usbd_ep_setup(dev, 0x84, USB_ENDPOINT_ATTR_INTERRUPT, 6, endpoint_in_callback);
+  usbd_ep_setup(dev, 0x81, USB_ENDPOINT_ATTR_INTERRUPT, 4, endpoint_in_callback);
+  usbd_ep_setup(dev, 0x82, USB_ENDPOINT_ATTR_INTERRUPT, 4, endpoint_in_callback);
+  usbd_ep_setup(dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 4, endpoint_in_callback);
+  usbd_ep_setup(dev, 0x84, USB_ENDPOINT_ATTR_INTERRUPT, 4, endpoint_in_callback);
 
   usbd_ep_setup(dev, 0x85, USB_ENDPOINT_ATTR_INTERRUPT, 64, config_endpoint_in_callback);
   usbd_ep_setup(dev, 0x05, USB_ENDPOINT_ATTR_INTERRUPT, 64, config_endpoint_out_callback);

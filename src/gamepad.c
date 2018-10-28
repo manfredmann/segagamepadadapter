@@ -108,11 +108,21 @@ static void gamepads_macro_accept(gamepad_macro_t *macro, gamepad_buttons_t butt
 
   while ((node = list_iter(macro->act_buttons, node)) != NULL) {
     gamepad_macro_btn_t *btn = (gamepad_macro_btn_t *) node->value;
+
     if (buttons[btn->button] & 0x1) {
       activate = true;
     } else {
       activate = false;
       break;
+    }
+  }
+
+  node = NULL;
+
+  while ((node = list_iter(macro->act_buttons, node)) != NULL) {
+    gamepad_macro_btn_t *btn = (gamepad_macro_btn_t *) node->value;
+    if (!btn->keep_pressed) {
+      buttons[btn->button] = 0x00;
     }
   }
 
@@ -127,6 +137,8 @@ static void gamepads_macro_accept(gamepad_macro_t *macro, gamepad_buttons_t butt
           if (btn->time_press_last > 0) {
             buttons[btn->button] = 0xFF;
             --btn->time_press_last;
+          } else {
+            buttons[btn->button] = 0x00;
           }
         } else {
           buttons[btn->button] = 0xFF;

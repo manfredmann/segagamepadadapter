@@ -21,7 +21,6 @@
 #include "init.h"
 #include "gpio.h"
 #include "usb_hid.h"
-#include "usb_cdc.h"
 
 static usbd_device *usbd_dev = NULL;
 
@@ -64,15 +63,6 @@ static const struct usb_interface ifaces[] = {
     .num_altsetting = 1,
     .altsetting     = &hid_iface_config,
   },
-  /*{
-    .num_altsetting = 1,
-    .iface_assoc    = &uart_assoc,
-    .altsetting     = uart_comm_iface,
-  },
-  {
-    .num_altsetting = 1,
-    .altsetting     = uart_data_iface,
-  },*/
 };
 
 static const struct usb_config_descriptor config = {
@@ -101,11 +91,10 @@ static const char *usb_strings[] = {
 
 static uint8_t usbd_control_buffer[256];
 
-static void usb_set_config(usbd_device *usbd_dev, uint16_t wValue) {
+static void usb_set_config(usbd_device *udev, uint16_t wValue) {
   (void) wValue;
 
-  usb_hid_setconfig(usbd_dev);
-  usb_cdc_setconfig(usbd_dev);
+  usb_hid_setconfig(udev);
 }
 
 void usb_init(void) {

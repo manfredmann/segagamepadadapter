@@ -167,7 +167,7 @@ static const struct usb_endpoint_descriptor hid_config_endpoints[] = {
     .bEndpointAddress = 0x85,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
     .wMaxPacketSize   = 64,
-    .bInterval        = 0x0A,
+    .bInterval        = 0x01,
   },
   {
     .bLength          = USB_DT_ENDPOINT_SIZE,
@@ -175,7 +175,7 @@ static const struct usb_endpoint_descriptor hid_config_endpoints[] = {
     .bEndpointAddress = 0x05,
     .bmAttributes     = USB_ENDPOINT_ATTR_INTERRUPT,
     .wMaxPacketSize   = 64,
-    .bInterval        = 0x0A,
+    .bInterval        = 0x01,
   }
 };
 

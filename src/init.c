@@ -64,3 +64,20 @@ void uart_init(void) {
 
   usart_enable(USART1);
 }
+
+int _write(int file, char *ptr, int len) {
+  if (file == STDOUT_FILENO || file == STDERR_FILENO) {
+
+    for (uint16_t i = 0; i < len; i++) {
+      if (ptr[i] == '\n') {
+        usart_send_blocking(USART1, '\r');
+      }
+      usart_send_blocking(USART1, ptr[i]);
+    }
+
+    return len;
+  }
+  errno = EIO;
+  return -1;
+}
+

@@ -382,11 +382,11 @@ void update_gamepads_macro(void) {
         gamepads_macro_add_btn(g_macro->press_buttons, btn);
       }
 
-      free(buttons.acts);
-      free(buttons.pressed);
-
       gamepads_macro_add(g_macro, gamepad);
     }
+
+    free(buttons.acts);
+    free(buttons.pressed);
   }
 }
 

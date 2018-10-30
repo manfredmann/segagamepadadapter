@@ -107,7 +107,7 @@ int main(void) {
   debugf("\n");
   debugf("- Startup (orange LED blinking)...\n");
 
-  for (volatile int i = 0; i < 13; i++) {
+  for (volatile int i = 0; i < 5; i++) {
     gpio_set(GPIO_LED_PORT, GPIO_LED_INFO);
     _msleep(150);
     gpio_clear(GPIO_LED_PORT, GPIO_LED_INFO);

@@ -39,7 +39,6 @@
 
 #define STORAGE_MACRO_SIZE  (sizeof(storage_macro_t) + (sizeof(storage_btn_t) * STORAGE_MAX_ACTS) + (sizeof(storage_btn_t) * STORAGE_MAX_PRESS))
 
-
 #define STORAGE_FLASH_OFFSET(x) ((x & 0x3C00) >> 10) * STORAGE_PAGE_SIZE;
 #define STORAGE_PAGE_OFFSET(x)  ((x & 0x0300) >> 8)  * STORAGE_MACRO_SIZE;
 

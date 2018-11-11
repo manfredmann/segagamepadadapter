@@ -32,9 +32,9 @@ static __inline uint32_t delta(uint32_t t0, uint32_t t1) {
 }
 
 void _usleep(uint32_t delay) {
-  uint32_t t0 = dwt_read_cycle_counter();
+  uint32_t t0 = DWT_CYCCNT;
   uint32_t us_count_tic = delay * 72;
-  while (delta(t0, dwt_read_cycle_counter()) < us_count_tic);
+  while (delta(t0, DWT_CYCCNT) < us_count_tic);
 }
 
 void _msleep(uint32_t delay) {

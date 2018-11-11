@@ -119,7 +119,9 @@ int main(void) {
 
   debugf("- Storage init...\n");
   storage_init();
-  update_gamepads_macro();
+  //storage_clear();
+  storage_get_macro_list();
+  //update_gamepads_macro();
   //storage_clear();
 
   gamepads_en();

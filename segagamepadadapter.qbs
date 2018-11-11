@@ -4,7 +4,7 @@ import 'libopencm.js' as LibCM
 Project {
     name: "segagamepadadapter"
 
-    property string     device:     "STM32F103RBT6"
+    property string     device:     "STM32F103RET6"
     property string     libopencm:  sourceDirectory + '/lib/libopencm3'
     property string     hid_def:    sourceDirectory + '/lib/hid_def/include/'
     property string     cpu:        cpuValidator.cpu

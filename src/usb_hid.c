@@ -302,32 +302,33 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
 
   uint8_t buf[3];
 
-  //Так как на макете только один геймпад, отправляем информацию только от первого
-
   switch (ep) {
     case 0x01: {
-      gamepad_data_t *gamepad_data = gamepad_read(1);
+      gamepad_data_t *gamepad_data = gamepad_read(0);
       buf[0] = gamepad_data->buttons;
       buf[1] = (uint8_t) gamepad_data->x;
       buf[2] = (uint8_t) gamepad_data->y;
       break;
     }
     case 0x02: {
-      buf[0] = 0x00;
-      buf[1] = 0;
-      buf[2] = 0;
+      gamepad_data_t *gamepad_data = gamepad_read(1);
+      buf[0] = gamepad_data->buttons;
+      buf[1] = (uint8_t) gamepad_data->x;
+      buf[2] = (uint8_t) gamepad_data->y;
       break;
     }
     case 0x03: {
-      buf[0] = 0x00;
-      buf[1] = 0;
-      buf[2] = 0;
+      gamepad_data_t *gamepad_data = gamepad_read(2);
+      buf[0] = gamepad_data->buttons;
+      buf[1] = (uint8_t) gamepad_data->x;
+      buf[2] = (uint8_t) gamepad_data->y;
       break;
     }
     case 0x04: {
-      buf[0] = 0x00;
-      buf[1] = 0;
-      buf[2] = 0;
+      gamepad_data_t *gamepad_data = gamepad_read(3);
+      buf[0] = gamepad_data->buttons;
+      buf[1] = (uint8_t) gamepad_data->x;
+      buf[2] = (uint8_t) gamepad_data->y;
       break;
     }
   }

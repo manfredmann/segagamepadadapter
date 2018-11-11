@@ -225,19 +225,19 @@ storage_map_t storage_get_macro_list(void) {
     }
 
     if (macro.act_count != 0) {
-      debugf("-  Activate buttons:\n");
+      //debugf("-  Activate buttons:\n");
 
       storage_btn_t *btn_data = (storage_btn_t *) (buf + page_offset + sizeof(storage_macro_t));
       for (uint8_t btn = 0; btn < macro.act_count; ++btn) {
-        debugf("-    Button: %d\n", btn_data->btn);
+        //debugf("-    Button: %d\n", btn_data->btn);
         ++btn_data;
       }
 
-      debugf("-  Buttons sequence:\n");
+      //debugf("-  Buttons sequence:\n");
 
       btn_data = (storage_btn_t *) (buf + page_offset + sizeof(storage_macro_t) + (sizeof(storage_btn_t) * STORAGE_MAX_ACTS));
       for (uint8_t btn = 0; btn < macro.press_count; ++btn) {
-        debugf("-    Button: %d, Delay: %d, Press: %d, Keep: %d\n", btn_data->btn, btn_data->time_delay, btn_data->time_press, btn_data->keep);
+        //debugf("-    Button: %d, Delay: %d, Press: %d, Keep: %d\n", btn_data->btn, btn_data->time_delay, btn_data->time_press, btn_data->keep);
         ++btn_data;
       }
     }

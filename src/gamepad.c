@@ -20,8 +20,6 @@
 #include "gamepad.h"
 #include <stdlib.h>
 
-#define DELAY()       for (volatile uint8_t i = 0; i < 3; i++){}
-
 static gamepad_data_t         gamepad_data;
 static uint8_t                gamepad_count;
 static gamepad_buttons_t      gamepad_buttons;
@@ -181,13 +179,13 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   gamepad_buttons_t buttons = gamepad_buttons + (gamepad * 12);
 
   gpio_clear(gp->select.port, gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   buttons[BTN_A]      = !gpio_get(gp->data4.port, gp->data4.pin);
   buttons[BTN_START]  = !gpio_get(gp->data5.port, gp->data5.pin);
 
   gpio_set(gp->select.port,   gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   buttons[BTN_UP]     = !gpio_get(gp->data0.port, gp->data0.pin);
   buttons[BTN_DOWN]   = !gpio_get(gp->data1.port, gp->data1.pin);
@@ -197,16 +195,16 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   buttons[BTN_C]      = !gpio_get(gp->data5.port, gp->data5.pin);
 
   gpio_clear(gp->select.port, gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   gpio_set(gp->select.port,   gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   gpio_clear(gp->select.port, gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   gpio_set(gp->select.port,   gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   buttons[BTN_MODE]   = !gpio_get(gp->data3.port, gp->data3.pin);
   buttons[BTN_X]      = !gpio_get(gp->data2.port, gp->data2.pin);
@@ -214,10 +212,10 @@ gamepad_data_t *gamepad_read(uint8_t gamepad) {
   buttons[BTN_Z]      = !gpio_get(gp->data0.port, gp->data0.pin);
 
   gpio_clear(gp->select.port, gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   gpio_set(gp->select.port,   gp->select.pin);
-  DELAY();
+  _usleep(2);
 
   // Применим макросы
   list_node_t *node = NULL;

@@ -93,8 +93,8 @@ static gamepad_gpio_t gamepads[4] = {
 
 int main(void) {
   clock_init();
+  dwt_init();
   uart_init();
-  systick_init();
   led_init();
   usb_init();
 

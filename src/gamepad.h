@@ -23,6 +23,7 @@
 #include "misc.h"
 #include "gpio.h"
 #include "list.h"
+#include "init.h"
 
 #define BTN_UP    0
 #define BTN_DOWN  1

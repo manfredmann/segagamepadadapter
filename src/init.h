@@ -22,7 +22,7 @@
 
 #include "misc.h"
 
-void systick_init(void);
+void dwt_init(void);
 void clock_init(void);
 void gpio_init(void);
 void uart_init(void);

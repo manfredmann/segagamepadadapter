@@ -19,30 +19,26 @@
 
 #include "init.h"
 
-volatile uint32_t system_millis = 0;
-
 void clock_init(void) {
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
 }
 
-void sys_tick_handler(void) {
-  system_millis++;
+void dwt_init(void) {
+  dwt_enable_cycle_counter();
+}
+
+static __inline uint32_t delta(uint32_t t0, uint32_t t1) {
+  return (t1 - t0);
 }
 
 void _usleep(uint32_t delay) {
-  uint32_t wake = system_millis + delay;
-  while (wake > system_millis);
+  uint32_t t0 = dwt_read_cycle_counter();
+  uint32_t us_count_tic = delay * 72;
+  while (delta(t0, dwt_read_cycle_counter()) < us_count_tic);
 }
 
 void _msleep(uint32_t delay) {
   _usleep(delay * 1000);
-}
-
-void systick_init(void) {
-  systick_set_reload(72);
-  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-  systick_counter_enable();
-  systick_interrupt_enable();
 }
 
 void uart_init(void) {

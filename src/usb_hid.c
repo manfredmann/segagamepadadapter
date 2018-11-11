@@ -301,39 +301,34 @@ static void endpoint_in_callback(usbd_device *usbd, uint8_t ep) {
   (void) ep;
 
   uint8_t buf[3];
+  gamepad_data_t *gamepad_data = NULL;
 
   switch (ep) {
     case 0x01: {
-      gamepad_data_t *gamepad_data = gamepad_read(0);
-      buf[0] = gamepad_data->buttons;
-      buf[1] = (uint8_t) gamepad_data->x;
-      buf[2] = (uint8_t) gamepad_data->y;
+      gamepad_data = gamepad_read(0);
       break;
     }
     case 0x02: {
-      gamepad_data_t *gamepad_data = gamepad_read(1);
-      buf[0] = gamepad_data->buttons;
-      buf[1] = (uint8_t) gamepad_data->x;
-      buf[2] = (uint8_t) gamepad_data->y;
+      gamepad_data = gamepad_read(1);
       break;
     }
     case 0x03: {
-      gamepad_data_t *gamepad_data = gamepad_read(2);
-      buf[0] = gamepad_data->buttons;
-      buf[1] = (uint8_t) gamepad_data->x;
-      buf[2] = (uint8_t) gamepad_data->y;
+      gamepad_data = gamepad_read(2);
       break;
     }
     case 0x04: {
-      gamepad_data_t *gamepad_data = gamepad_read(3);
-      buf[0] = gamepad_data->buttons;
-      buf[1] = (uint8_t) gamepad_data->x;
-      buf[2] = (uint8_t) gamepad_data->y;
+      gamepad_data = gamepad_read(3);
       break;
     }
   }
 
-  usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
+  if (gamepad_data != NULL) {
+    buf[0] = gamepad_data->buttons;
+    buf[1] = (uint8_t) gamepad_data->x;
+    buf[2] = (uint8_t) gamepad_data->y;
+
+    usbd_ep_write_packet(usbd, ep, buf, sizeof(buf));
+  }
 }
 
 static void config_endpoint_in_callback(usbd_device *usbd, uint8_t ep) {

@@ -86,7 +86,6 @@ static const char *usb_strings[] = {
   "SEGA Gamepad 3",
   "SEGA Gamepad 4",
   "Configuration",
-  "Debug serial",
 };
 
 static uint8_t usbd_control_buffer[256];

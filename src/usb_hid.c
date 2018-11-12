@@ -71,7 +71,7 @@ static uint8_t hid_config_report_descriptor[] = {
     HID_LOGICAL_MINIMUM (1, 0),
     HID_LOGICAL_MAXIMUM (1, 255),
     HID_REPORT_SIZE (8),
-    HID_REPORT_SIZE (64),
+    HID_REPORT_COUNT (64),
     HID_USAGE (UNDEFINED),
   HID_END_COLLECTION (APPLICATION),
 };

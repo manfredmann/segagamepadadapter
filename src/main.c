@@ -101,7 +101,7 @@ int main(void) {
   debugf("%c[2J%c ", 27, 27);
   debugf("---------------------------------------------------------------------------\n");
   debugf("| SEGA Gamepad adapter    Copyright (C) 2018 Roman Serov <roman@serov.co> |\n");
-  debugf("| Thanks to:              Cluster, lizardqueengointotheclub27             |\n");
+  debugf("| Thanks to:              Cluster                                         |\n");
   debugf("| License:                GPL-3.0  See <http://www.gnu.org/licenses/>     |\n");
   debugf("---------------------------------------------------------------------------\n");
   debugf("\n");
